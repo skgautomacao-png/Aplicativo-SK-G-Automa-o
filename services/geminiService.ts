@@ -2,15 +2,23 @@
 import { GoogleGenAI, GenerateContentResponse } from "@google/genai";
 import { SYSTEM_INSTRUCTION } from '../constants.ts';
 
-// Inicialização da SDK utilizando a variável de ambiente process.env.API_KEY.
-// Nota: Em ambientes Vite/Vercel, se process.env não estiver definido, a plataforma injeta automaticamente.
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || (import.meta as any).env?.VITE_API_KEY || '' });
+/**
+ * Engenheiro Sênior: Refatoração para compatibilidade com Vite/Vercel.
+ * Substituindo process.env por import.meta.env conforme solicitado para depuração de ambiente.
+ */
+const apiKey = (import.meta as any).env?.VITE_GEMINI_API_KEY;
+
+// Log de depuração seguro (apenas 4 dígitos) para validar a injeção da variável no Vercel
+console.log(`Iniciando chamada com a chave: ${apiKey ? apiKey.substring(0, 4) + '****' : 'não encontrada'}`);
+
+const ai = new GoogleGenAI({ apiKey: apiKey || '' });
 
 export const sendMessageToGemini = async (message: string, base64Image?: string): Promise<string> => {
   try {
     const contents: any[] = [];
     const parts: any[] = [];
 
+    // Suporte multimodal para identificação visual de produtos Camozzi/SMC/Festo
     if (base64Image) {
       parts.push({
         inlineData: {
